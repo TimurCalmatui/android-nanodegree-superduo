@@ -196,6 +196,10 @@ public class BookService extends IntentService {
                 writeBackCategories(ean,bookInfo.getJSONArray(CATEGORIES) );
             }
 
+            // notify after all info (including authors and categories) inserted
+            getContentResolver().notifyChange(
+                    AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(ean)), null);
+
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
         }
@@ -208,7 +212,7 @@ public class BookService extends IntentService {
         values.put(AlexandriaContract.BookEntry.IMAGE_URL, imgUrl);
         values.put(AlexandriaContract.BookEntry.SUBTITLE, subtitle);
         values.put(AlexandriaContract.BookEntry.DESC, desc);
-        getContentResolver().insert(AlexandriaContract.BookEntry.CONTENT_URI,values);
+        getContentResolver().insert(AlexandriaContract.BookEntry.CONTENT_URI, values);
     }
 
     private void writeBackAuthors(String ean, JSONArray jsonArray) throws JSONException {
