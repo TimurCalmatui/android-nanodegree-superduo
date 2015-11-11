@@ -2,8 +2,11 @@ package it.jaschke.alexandria.services;
 
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -130,6 +133,20 @@ public class BookService extends IntentService {
             bookJsonString = buffer.toString();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error ", e);
+
+            ConnectivityManager cm = 
+                    (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            
+            if (cm != null) {
+                NetworkInfo ni = cm.getActiveNetworkInfo();
+                if (ni == null || !ni.isConnected()) {
+                    broadcastMessage(R.string.error_no_connection);
+                    return;
+                }
+            }
+
+            broadcastMessage(R.string.error_network);
+            return;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -162,9 +179,7 @@ public class BookService extends IntentService {
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
-                Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-                messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                broadcastMessage(R.string.not_found);
                 return;
             }
 
@@ -202,7 +217,14 @@ public class BookService extends IntentService {
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
+            broadcastMessage(R.string.error_network);
         }
+    }
+
+    private void broadcastMessage(int messageResId) {
+        Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
+        messageIntent.putExtra(MainActivity.MESSAGE_KEY, getResources().getString(messageResId));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
     }
 
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
