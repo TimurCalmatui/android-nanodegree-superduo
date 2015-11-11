@@ -55,6 +55,36 @@ public class scoresAdapter extends CursorAdapter
         mHolder.away_crest.setImageResource(Utilies.getTeamCrestByTeamName(
                 cursor.getString(COL_AWAY)
         ));
+        
+        mHolder.home_name.setContentDescription(context.getString(R.string.a11y_home_team_name,
+                mHolder.home_name.getText()));
+        
+        mHolder.away_name.setContentDescription(context.getString(R.string.a11y_away_team_name,
+                mHolder.away_name.getText()));
+
+        String[] parts = mHolder.date.getText().toString().split(":", 2);
+        int hours = -1;
+        int minutes = -1;
+        if (parts.length == 2) {
+            try {
+                hours = Integer.parseInt(parts[0]);
+                minutes = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException ignore) {}
+        }
+        
+        if (hours != -1 && minutes != -1) {
+            mHolder.date.setContentDescription(
+                    context.getString(R.string.a11y_match_time_hours_minutes, hours, minutes));
+        } else {
+            mHolder.date.setContentDescription(context.getString(R.string.a11y_match_time,
+                    mHolder.date.getText()));
+        }
+
+        if (mHolder.score.getText().length() > 3) {
+            mHolder.score.setContentDescription(context.getString(R.string.a11y_score,
+                    mHolder.score.getText()));
+        }
+        
         //Log.v(FetchScoreTask.LOG_TAG,mHolder.home_name.getText() + " Vs. " + mHolder.away_name.getText() +" id " + String.valueOf(mHolder.match_id));
         //Log.v(FetchScoreTask.LOG_TAG,String.valueOf(detail_match_id));
         LayoutInflater vi = (LayoutInflater) context.getApplicationContext()
@@ -72,6 +102,8 @@ public class scoresAdapter extends CursorAdapter
                     cursor.getInt(COL_LEAGUE)));
             TextView league = (TextView) v.findViewById(R.id.league_textview);
             league.setText(Utilies.getLeague(cursor.getInt(COL_LEAGUE)));
+            league.setContentDescription(context.getString(R.string.a11y_league, league.getText()));
+            
             Button share_button = (Button) v.findViewById(R.id.share_button);
             share_button.setOnClickListener(new View.OnClickListener() {
                 @Override

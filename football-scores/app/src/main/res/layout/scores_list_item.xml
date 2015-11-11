@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="5dp"
         >
+        <!-- NOTE: crests are only decorative here so no need for content description -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -19,7 +20,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:id="@+id/home_crest"/>
+                android:id="@+id/home_crest"
+                android:contentDescription="@null" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,7 +64,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:id="@+id/away_crest"/>
+                android:id="@+id/away_crest"
+                android:contentDescription="@null" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
