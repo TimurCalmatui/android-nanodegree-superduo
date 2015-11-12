@@ -148,6 +148,7 @@ public class myFetchService extends IntentService
         final String Bundesliga3 = "403";
         final String EREDIVISIE = "404";
         final String DUMMY = "357";
+        final String DUMMY2 = "362";
 
 
         final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
@@ -198,7 +199,8 @@ public class myFetchService extends IntentService
                         League.equals(BUNDESLIGA1)         ||
                         League.equals(BUNDESLIGA2)         ||
                         League.equals(PRIMERA_DIVISION)    ||
-                        League.equals(DUMMY))
+                        League.equals(DUMMY)               ||
+                        League.equals(DUMMY2))
                 {
                     match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
                             getString("href");
