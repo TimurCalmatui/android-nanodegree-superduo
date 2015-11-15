@@ -1,6 +1,9 @@
 package barqsoft.footballscores;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,33 +23,73 @@ import java.util.Date;
  */
 public class PagerFragment extends Fragment
 {
-    public static final int NUM_PAGES = 5;
+    public static final int NUM_PAGES = 12;
+    public static final String STATE_RTL = "rtl";
     public ViewPager mPagerHandler;
-    private myPageAdapter mPagerAdapter;
-    private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
+    private boolean mIsRTL;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.pager_fragment, container, false);
         mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager);
-        mPagerAdapter = new myPageAdapter(getChildFragmentManager());
-        for (int i = 0;i < NUM_PAGES;i++)
-        {
-            Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
-            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
-            viewFragments[i] = new MainScreenFragment();
-            viewFragments[i].setFragmentDate(mformat.format(fragmentdate));
+        myPageAdapter mPagerAdapter = new myPageAdapter(getChildFragmentManager());
+
+        mIsRTL = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Configuration config = getResources().getConfiguration();
+            if (config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                mIsRTL = true;
+            }
         }
+
         mPagerHandler.setAdapter(mPagerAdapter);
-        mPagerHandler.setCurrentItem(MainActivity.current_fragment);
+        setInitialPosition();
+        
         return rootView;
     }
+
+    private void setInitialPosition() {
+        if (mIsRTL) {
+            mPagerHandler.setCurrentItem(NUM_PAGES - 3);
+        } else {
+            mPagerHandler.setCurrentItem(2);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_RTL, mIsRTL);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_RTL) != mIsRTL) {
+            // restart the app to reinitialize view pager for new RTL setting
+            // (there are other ways to do it to better preserve current state
+            // but this is irrelevant since users don't often change RTL setting)
+            Intent i = getActivity().getPackageManager()
+                    .getLaunchIntentForPackage(getActivity().getPackageName());
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+        }
+    }
+
     private class myPageAdapter extends FragmentStatePagerAdapter
     {
         @Override
         public Fragment getItem(int i)
         {
-            return viewFragments[i];
+            int day = mIsRTL ? NUM_PAGES - i - 3 : i - 2;
+            Date fragmentDate = new Date(System.currentTimeMillis() + (day * 86400000));
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            MainScreenFragment fragment = new MainScreenFragment();
+            fragment.setFragmentDate(format.format(fragmentDate));
+
+            return fragment;
         }
 
         @Override
@@ -63,7 +106,8 @@ public class PagerFragment extends Fragment
         @Override
         public CharSequence getPageTitle(int position)
         {
-            return getDayName(getActivity(),System.currentTimeMillis()+((position-2)*86400000));
+            int day = mIsRTL ? NUM_PAGES - position - 3 : position - 2;
+            return getDayName(getActivity(), System.currentTimeMillis() + (day * 86400000));
         }
         public String getDayName(Context context, long dateInMillis) {
             // If the date is today, return the localized version of "Today" instead of the actual
@@ -86,8 +130,8 @@ public class PagerFragment extends Fragment
             {
                 Time time = new Time();
                 time.setToNow();
-                // Otherwise, the format is just the day of the week (e.g "Wednesday".
-                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+                // Otherwise, the format is the day of the week, month and day
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE, MMM dd");
                 return dayFormat.format(dateInMillis);
             }
         }
