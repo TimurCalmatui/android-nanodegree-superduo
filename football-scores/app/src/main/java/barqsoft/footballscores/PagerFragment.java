@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.format.DateFormat;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by yehya khaled on 2/27/2015.
@@ -85,7 +87,7 @@ public class PagerFragment extends Fragment
         {
             int day = mIsRTL ? NUM_PAGES - i - 3 : i - 2;
             Date fragmentDate = new Date(System.currentTimeMillis() + (day * 86400000));
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             MainScreenFragment fragment = new MainScreenFragment();
             fragment.setFragmentDate(format.format(fragmentDate));
 
@@ -128,11 +130,21 @@ public class PagerFragment extends Fragment
             }
             else
             {
-                Time time = new Time();
-                time.setToNow();
                 // Otherwise, the format is the day of the week, month and day
-                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE, MMM dd");
-                return dayFormat.format(dateInMillis);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    return DateFormat.format(
+                            DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEE, MMM dd"),
+                            dateInMillis)
+                            .toString();
+                } else {
+                    SimpleDateFormat format = new SimpleDateFormat("EEEE, MMM dd", Locale.getDefault());
+                    if (DateFormat.getDateFormatOrder(getActivity())[0] == 'd') {
+                        format = new SimpleDateFormat("EEEE, dd MMM", Locale.getDefault());
+                    }
+
+                    String date = format.format(dateInMillis);
+                    return Character.toUpperCase(date.charAt(0)) + date.substring(1);
+                }
             }
         }
     }
