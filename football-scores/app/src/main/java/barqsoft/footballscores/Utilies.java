@@ -89,4 +89,23 @@ public class Utilies
             default: return R.drawable.no_icon;
         }
     }
+
+    public static String getMatchTimeContentDescription(Context context, String matchTime) {
+        String[] parts = matchTime.split(":", 2);
+        int hours = -1;
+        int minutes = -1;
+        if (parts.length == 2) {
+            try {
+                hours = Integer.parseInt(parts[0]);
+                minutes = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException ignore) {
+            }
+        }
+
+        if (hours != -1 && minutes != -1) {
+            return context.getString(R.string.a11y_match_time_hours_minutes, hours, minutes);
+        } else {
+            return context.getString(R.string.a11y_match_time, matchTime);
+        }
+    }
 }

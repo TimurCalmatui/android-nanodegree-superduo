@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:initialLayout="@layout/widget_match_score"
+    android:minHeight="110dp"
+    android:minWidth="250dp"
+    android:resizeMode="horizontal"
+    android:updatePeriodMillis="43200000"
+    tools:ignore="UnusedAttribute" />

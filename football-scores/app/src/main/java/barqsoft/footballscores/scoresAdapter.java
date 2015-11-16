@@ -63,24 +63,9 @@ public class scoresAdapter extends CursorAdapter
         mHolder.away_name.setContentDescription(context.getString(R.string.a11y_away_team_name,
                 mHolder.away_name.getText()));
 
-        String[] parts = mHolder.date.getText().toString().split(":", 2);
-        int hours = -1;
-        int minutes = -1;
-        if (parts.length == 2) {
-            try {
-                hours = Integer.parseInt(parts[0]);
-                minutes = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException ignore) {}
-        }
+        mHolder.date.setContentDescription(
+                Utilies.getMatchTimeContentDescription(context, mHolder.date.getText().toString()));
         
-        if (hours != -1 && minutes != -1) {
-            mHolder.date.setContentDescription(
-                    context.getString(R.string.a11y_match_time_hours_minutes, hours, minutes));
-        } else {
-            mHolder.date.setContentDescription(context.getString(R.string.a11y_match_time,
-                    mHolder.date.getText()));
-        }
-
         if (mHolder.score.getText().length() > 3) {
             mHolder.score.setContentDescription(context.getString(R.string.a11y_score,
                     mHolder.score.getText()));
