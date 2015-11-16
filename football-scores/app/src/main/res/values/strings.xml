@@ -36,6 +36,8 @@
     <!-- General -->
     <string name="share_hashtag">#Football_Scores</string>
     <string name="scores_widget_empty">No matches today</string>
+    <string name="widget_title_today_matches">Today\'s matches</string>
+    <string name="widget_title_match_score">Match score</string>
     
     <!-- App configuration -->
     <string name="api_key" translatable="false"></string>

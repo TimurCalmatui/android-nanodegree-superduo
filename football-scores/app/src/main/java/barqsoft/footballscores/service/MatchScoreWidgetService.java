@@ -1,6 +1,5 @@
 package barqsoft.footballscores.service;
 
-import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -8,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -16,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Locale;
 
+import barqsoft.footballscores.Compat;
 import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.R;
@@ -114,20 +113,20 @@ public class MatchScoreWidgetService extends IntentService {
 
             // Add the data to the RemoteViews
             views.setTextViewText(R.id.home_name, homeTeamName);
-            setRemoteContentDescription(views, R.id.home_name,
+            Compat.setRemoteContentDescription(views, R.id.home_name,
                     getString(R.string.a11y_home_team_name, homeTeamName));
 
             views.setTextViewText(R.id.away_name, awayTeamName);
-            setRemoteContentDescription(views, R.id.away_name,
+            Compat.setRemoteContentDescription(views, R.id.away_name,
                     getString(R.string.a11y_away_team_name, awayTeamName));
 
             views.setTextViewText(R.id.data_textview, matchTime);
-            setRemoteContentDescription(views, R.id.data_textview,
+            Compat.setRemoteContentDescription(views, R.id.data_textview,
                     Utilies.getMatchTimeContentDescription(getBaseContext(), matchTime));
 
             views.setTextViewText(R.id.score_textview, score);
             if (score.length() > 3) {
-                setRemoteContentDescription(views, R.id.score_textview,
+                Compat.setRemoteContentDescription(views, R.id.score_textview,
                         getString(R.string.a11y_score, score));
             }
 
@@ -137,17 +136,10 @@ public class MatchScoreWidgetService extends IntentService {
             // Create an Intent to launch MainActivity
             Intent launchIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, launchIntent, 0);
-            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent);
+            views.setOnClickPendingIntent(R.id.item_container, pendingIntent);
 
             // Tell the AppWidgetManager to perform an update on the current app widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
-    private void setRemoteContentDescription(RemoteViews views, int viewId, String description) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            views.setContentDescription(viewId, description);
         }
     }
 }

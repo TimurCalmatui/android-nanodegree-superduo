@@ -35,7 +35,9 @@
         </activity>
         <service android:name=".service.myFetchService" />
 
-        <receiver android:name=".widget.MatchScoreWidget">
+        <receiver
+            android:name=".widget.MatchScoreWidget"
+            android:label="@string/widget_title_match_score">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="barqsoft.footballscores.app.ACTION_DATA_UPDATED" />
@@ -46,7 +48,29 @@
                 android:resource="@xml/match_score_widget_info" />
         </receiver>
 
-        <service android:name=".service.MatchScoreWidgetService" />
+        <service
+            android:name=".service.MatchScoreWidgetService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".widget.TodayMatchesWidget"
+            android:enabled="@bool/hasHoneycomb"
+            android:label="@string/widget_title_today_matches">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="barqsoft.footballscores.app.ACTION_DATA_UPDATED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_matches_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".service.TodayMatchesWidgetRemoteViewsService"
+            android:enabled="@bool/hasHoneycomb"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
     </application>
 
