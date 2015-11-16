@@ -18,8 +18,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -34,7 +37,30 @@ public class myFetchService extends IntentService
     public static final String LOG_TAG = "myFetchService";
     public static final String ACTION_DATA_UPDATED =
             "barqsoft.footballscores.app.ACTION_DATA_UPDATED";
-    
+
+    private static final boolean FORCE_DUMMY_DATA = false;
+
+    // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
+    // be updated. Feel free to use the codes.
+    // Add leagues here in order to have them be added to the DB.
+    // If you are finding no data in the app, check that this contains all the leagues.
+    // If it doesn't, that can cause an empty DB, bypassing the dummy data routine.
+    private static final Set<String> LEAGUES = new HashSet<>(Arrays.asList(
+        /* BUNDESLIGA1 = */ "394",
+        /* BUNDESLIGA2 */ "395",
+        /* LIGUE1 */ "396",
+        /* LIGUE2 */ "397",
+        /* PREMIER_LEAGUE */ "398",
+        /* PRIMERA_DIVISION */ "399",
+        /* SEGUNDA_DIVISION */ "400",
+        /* SERIE_A */ "401",
+        /* PRIMERA_LIGA */ "402",
+        /* Bundesliga3 */ "403",
+        /* EREDIVISIE */ "404",
+        /* DUMMY */ "357",
+        /* DUMMY2 */ "362"
+    ));
+
     public myFetchService()
     {
         super("myFetchService");
@@ -43,8 +69,12 @@ public class myFetchService extends IntentService
     @Override
     protected void onHandleIntent(Intent intent)
     {
-        getData("n9");
-        getData("p2");
+        if (FORCE_DUMMY_DATA) {
+            processJSONdata(getString(R.string.dummy_data), getApplicationContext(), false);
+        } else {
+            getData("n9");
+            getData("p2");
+        }
 
         updateWidgets();
     }
@@ -137,24 +167,6 @@ public class myFetchService extends IntentService
     }
     private void processJSONdata (String JSONdata,Context mContext, boolean isReal)
     {
-        //JSON data
-        // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
-        // be updated. Feel free to use the codes
-        final String BUNDESLIGA1 = "394";
-        final String BUNDESLIGA2 = "395";
-        final String LIGUE1 = "396";
-        final String LIGUE2 = "397";
-        final String PREMIER_LEAGUE = "398";
-        final String PRIMERA_DIVISION = "399";
-        final String SEGUNDA_DIVISION = "400";
-        final String SERIE_A = "401";
-        final String PRIMERA_LIGA = "402";
-        final String Bundesliga3 = "403";
-        final String EREDIVISIE = "404";
-        final String DUMMY = "357";
-        final String DUMMY2 = "362";
-
-
         final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
         final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
         final String FIXTURES = "fixtures";
@@ -170,7 +182,7 @@ public class myFetchService extends IntentService
         final String MATCH_DAY = "matchday";
 
         //Match data
-        String League = null;
+        String league = null;
         String mDate = null;
         String mTime = null;
         String Home = null;
@@ -191,20 +203,11 @@ public class myFetchService extends IntentService
             {
 
                 JSONObject match_data = matches.getJSONObject(i);
-                League = match_data.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).
+                league = match_data.getJSONObject(LINKS).getJSONObject(SOCCER_SEASON).
                         getString("href");
-                League = League.replace(SEASON_LINK,"");
-                //This if statement controls which leagues we're interested in the data from.
-                //add leagues here in order to have them be added to the DB.
-                // If you are finding no data in the app, check that this contains all the leagues.
-                // If it doesn't, that can cause an empty DB, bypassing the dummy data routine.
-                if(     League.equals(PREMIER_LEAGUE)      ||
-                        League.equals(SERIE_A)             ||
-                        League.equals(BUNDESLIGA1)         ||
-                        League.equals(BUNDESLIGA2)         ||
-                        League.equals(PRIMERA_DIVISION)    ||
-                        League.equals(DUMMY)               ||
-                        League.equals(DUMMY2))
+                league = league.replace(SEASON_LINK, "");
+
+                if (LEAGUES.contains(league))
                 {
                     match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
                             getString("href");
@@ -255,7 +258,7 @@ public class myFetchService extends IntentService
                     match_values.put(DatabaseContract.scores_table.AWAY_COL,Away);
                     match_values.put(DatabaseContract.scores_table.HOME_GOALS_COL,Home_goals);
                     match_values.put(DatabaseContract.scores_table.AWAY_GOALS_COL,Away_goals);
-                    match_values.put(DatabaseContract.scores_table.LEAGUE_COL,League);
+                    match_values.put(DatabaseContract.scores_table.LEAGUE_COL, league);
                     match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
                     //log spam
 
