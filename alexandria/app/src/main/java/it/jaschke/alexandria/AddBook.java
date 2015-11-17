@@ -124,7 +124,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
+        if (scanResult != null && scanResult.getContents() != null) {
             ean.setText(scanResult.getContents().replaceAll("[^0-9]", ""));
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
